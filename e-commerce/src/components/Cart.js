@@ -2,14 +2,17 @@ import { React, useState } from "react";
 import { Button, Container, Row, Col, ListGroup, Image, Modal, OverlayTrigger, Tooltip, Form, InputGroup  } from "react-bootstrap";
 
 export const Cart = () => {
-  
-  const [selectedProduct, setSelectedProduct] = useState(null); // Stores the selected product for modal
-  const [showModal, setShowModal] = useState(false); // Controls modal visibility
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null); 
+  const [showModal, setShowModal] = useState(false); 
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [shippingFee, setShippingFee] = useState(16);
   const [coupon, setCoupon] = useState('');
   const [couponApplied, setCouponApplied] = useState(false);
   const [termsChecked, setTermsChecked] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [itemToRemove, setItemToRemove] = useState(null);
+  const [wishlist, setWishlist] = useState([]);
 
   // Sample products
   const products = [
@@ -60,7 +63,23 @@ export const Cart = () => {
     },
   ];
 
-  // Open modal when product is clicked
+  const handleSelectItem = (itemId) => {
+    setSelectedItems((prevSelected) =>
+      prevSelected.includes(itemId)
+        ? prevSelected.filter((id) => id !== itemId)
+        : [...prevSelected, itemId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedItems.length === cart.length) {
+      setSelectedItems([]); // Deselect all
+    } else {
+      setSelectedItems(cart.map((item) => item.id)); // Select all
+    }
+  };
+
+  //Show details of the item
   const handleShowModal = (product) => {
     setSelectedProduct(product);
     setShowModal(true);
@@ -91,10 +110,38 @@ export const Cart = () => {
     });
   };
 
+  const toggleWishlist = (item) => {
+    setWishlist((prevWishlist) =>
+      prevWishlist.includes(item.id)
+        ? prevWishlist.filter((id) => id !== item.id) 
+        : [...prevWishlist, item.id] 
+    );
+  };
+
+  //Removing of item with confirmation functions
+  const handleRemoveClick = (item) => {
+    setItemToRemove(item);
+    setShowConfirmModal(true);
+  };
+  
+  const confirmRemoveItem = () => {
+    if (itemToRemove) {
+      removeItemFromCart(itemToRemove);
+      setShowConfirmModal(false);
+      setItemToRemove(null);
+    }
+  };
+  
+  const cancelRemove = () => {
+    setShowConfirmModal(false);
+    setItemToRemove(null);
+  };
+
   const removeItemFromCart = (product) => {
     setCart((prevCart) => prevCart.filter((item) => item.id !== product.id));
   };
 
+  //Shipping Fee
   const handleShippingChange = (event) => {
     const selectedValue = event.target.value;
     setShippingFee(selectedValue === "1" ? 16 : 15);
@@ -102,12 +149,15 @@ export const Cart = () => {
 
   // Apply coupon
   const applyCoupon = () => {
-    if (coupon === "BBSWIMPH2025") {
+    if (!coupon.trim()) {
+      setErrorMessage("Please enter a valid code.");
+      setCouponApplied(false);
+    } else if (coupon === "BBSWIMPH2025") {
       setCouponApplied(true);
-      setErrorMessage('');
+      setErrorMessage("");
     } else {
       setCouponApplied(false);
-      setErrorMessage('Sorry, but this coupon doesn\'t exist.');
+      setErrorMessage("Sorry, but this coupon doesn't exist.");
     }
   };
 
@@ -119,7 +169,7 @@ export const Cart = () => {
   
     // Free shipping applies only if discountedTotal is $500 or more
     const shipping = discountedTotal >= 500 ? 0 : 16;
-  
+    
     return { 
       subtotal, 
       discount, 
@@ -134,16 +184,30 @@ export const Cart = () => {
       <Row>
         <h1>Cart</h1>
       </Row>
+
+      {/* Cart Items Column */}
       <Row>
-        <Col className="list-group-container">
-          <h3>Cart Items</h3>
+        <Col xs={12} md={8} lg={8} className="list-group-container">
+        <div className="d-flex align-items-center">
+          <input
+            type="checkbox"
+            checked={selectedItems.length === cart.length && cart.length > 0}
+            onChange={handleSelectAll}
+          />
+          <h3 className="ms-2">All Items ({cart.length})</h3>
+        </div>
           {cart.length === 0 ? (
             <p>No items in cart</p>
           ) : (
             <ListGroup className="shadow-sm">
               {cart.map((item) => (
                 <ListGroup.Item key={item.id} className="d-flex align-items-center justify-content-between p-4">
-                  
+                  <input
+                    type="checkbox"
+                    checked={selectedItems.includes(item.id)}
+                    onChange={() => handleSelectItem(item.id)}
+                    className="me-3"
+                  />
                   {/* Product Image and Name */}
                   <div 
                     onClick={() => handleShowModal(item)} 
@@ -212,21 +276,31 @@ export const Cart = () => {
 
                   {/* Wishlist and Remove Actions */}
                   <div className="d-flex align-items-center">
-                    <div className="ms-3 d-flex align-items-center" style={{ cursor: "pointer" }}>
+                    <div 
+                      className="ms-3 d-flex align-items-center" 
+                      style={{ cursor: "pointer" }} 
+                      onClick={() => toggleWishlist(item)}
+                    >
                       <Image 
-                        src="../../icons/heart.png"
+                        src={wishlist.includes(item.id) ? "../../icons/redheart.png" : "../../icons/heart.png"}
                         alt="heart"
                         width={16}
                         height={16}
                       />
-                      <p className="wishlist ms-2">Save to Wishlist</p>
+                      <p className="wishlist ms-2">
+                        {wishlist.includes(item.id) ? "Added to Wishlist" : "Save to Wishlist"}
+                      </p>
                     </div>
 
                     <div className="d-flex align-items-center">
                       <span className="me-3 ms-3">|</span>
                     </div>
 
-                    <div className="d-flex align-items-center" style={{ cursor: "pointer" }} onClick={() => removeItemFromCart(item)}>
+                    <div 
+                      className="d-flex align-items-center" 
+                      style={{ cursor: "pointer" }} 
+                      onClick={() => handleRemoveClick(item)}
+                    >
                       <Image 
                         src="../../icons/trash.png"
                         alt="trash"
@@ -242,7 +316,9 @@ export const Cart = () => {
             </ListGroup>
           )}
         </Col>
-        <Col className="order-container">
+
+        {/* Order Summary Column */}
+        <Col xs={12} md={4} lg={4} className="order-container">
           <Row className="shipping-fee-container ps-3 pe-3">
             <p style={{ fontSize: "18px",  }}>ESTIMATED SHIPPING FEE </p>
             <p style={{ fontSize: "14px" }}>Shipping via:</p>
@@ -275,7 +351,7 @@ export const Cart = () => {
               <div className="d-flex justify-content-between">
                 <InputGroup className="mb-3 me-3">
                   <Form.Control
-                    text="text"
+                    type="text"
                     placeholder="Enter discount code or gift card"
                     onChange={(e) => setCoupon(e.target.value)}
                     value={coupon}
@@ -283,6 +359,16 @@ export const Cart = () => {
                 </InputGroup>
                 <Button size="sm" onClick={applyCoupon}>Apply</Button>
               </div>
+
+              {/* Error message */}
+              {errorMessage && <p className="text-danger">{errorMessage}</p>}
+
+              {/* Applied Coupon Tag */}
+              {couponApplied && (
+                <div className="alert alert-success p-2">
+                  Coupon <strong>{coupon}</strong> applied!
+                </div>
+              )}
 
               <div className="d-flex justify-content-between">
                 <p style={{ fontSize: "16px",  }}>Subtotal </p>
@@ -294,13 +380,36 @@ export const Cart = () => {
                 <p style={{ fontSize: "16px" }}>${calculateTotal().shipping}</p>
               </div>
 
-              <div className="border-top my-3" style={{ borderWidth: "8px" }}></div>
+              <div className="flex-grow-1 border-top"></div>
 
               <div className="d-flex justify-content-between">
                 <p style={{ fontSize: "24px" }}>ESTIMATED TOTAL</p>
                 <p style={{ fontSize: "24px" }}>${calculateTotal().total.toFixed(2)}</p>
               </div>
 
+              <div className="d-flex flex-column align-items-center w-100">
+                {/* Checkout Button */}
+                <Button className="w-100 mb-3" disabled={!termsChecked}>Checkout Now</Button>
+
+                {/* Divider with Text */}
+                <div className="d-flex align-items-center w-100">
+                  <div className="flex-grow-1 border-top"></div>
+                  <p className="mx-2 my-0" style={{ fontSize: "12px" }}>OR EXPRESS TOTAL</p>
+                  <div className="flex-grow-1 border-top"></div>
+                </div>
+
+                {/* PayPal Button */}
+                <Button className="w-100 mt-3" variant="warning" disabled={!termsChecked}>Paypal</Button>
+              </div>
+
+              <div className="d-flex align-items-center">
+                <Form.Check 
+                  label="I agree to the Terms & Conditions and Privacy Policy" 
+                  checked={termsChecked} 
+                  onChange={() => 
+                  setTermsChecked(!termsChecked)}/>
+              </div>
+              
             </div>
           </Row>
         </Col>
@@ -325,6 +434,25 @@ export const Cart = () => {
           </>
         )}
       </Modal>
+      
+      {/* Confirmation Delete Modal */}
+      <Modal show={showConfirmModal} onHide={cancelRemove} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Removal</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to remove <strong>{itemToRemove?.name}</strong> from your cart?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={cancelRemove}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={confirmRemoveItem}>
+            Remove
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      
     </Container>
   );
 };

@@ -4,6 +4,22 @@
   box-sizing: 0px;
 }
 
+@media (max-width: 834px) { /* Tablet */
+  .list-group-container, .order-container {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 375px) { /* Mobile */
+  .d-flex {
+    flex-direction: column;
+  }
+  .order-container {
+    text-align: center;
+  }
+}
+
 .App {
   display: flex;
   flex-direction: column;
