@@ -16,11 +16,28 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-
-  .row-add-items{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
 }
+
+.order-container{
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  justify-content: center;
+}
+
+.shipping-fee-container{
+  background: #efefef;
+  padding-top: 32px;
+  padding-bottom: 32px;
+  margin-bottom: 24px;
+}
+
+.order-fee-container{
+  background: #efefef;
+  padding-top: 32px;
+  padding-bottom: 32px;
+}
+
+/* .list-group-container{
+  width: 100%;
+} */

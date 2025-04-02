@@ -1,10 +1,11 @@
 import { React, useState } from "react";
-import { Button, Container, Row, Col, ListGroup, Image, Modal, OverlayTrigger, Tooltip  } from "react-bootstrap";
+import { Button, Container, Row, Col, ListGroup, Image, Modal, OverlayTrigger, Tooltip, Form, InputGroup  } from "react-bootstrap";
 
 export const Cart = () => {
   
   const [selectedProduct, setSelectedProduct] = useState(null); // Stores the selected product for modal
   const [showModal, setShowModal] = useState(false); // Controls modal visibility
+  const [shippingFee, setShippingFee] = useState(16);
 
   // Sample products
   const products = [
@@ -13,8 +14,8 @@ export const Cart = () => {
       name: "Cheeky Bottoms",
       price: 55,
       discountPrice: 55,
-      imageUrl: "../../images/cheeky-bottoms.jpg",
-      variants: ["../../images/cheeky-bottoms.jpg", "../../images/cheeky-bottoms2.jpg"],
+      imageUrl: "../../images/chk-btm.jpg",
+      variants: ["../../images/chk-btm.jpg", "../../images/chk-btm2.jpg"],
       stock: 10,
     },
     {
@@ -22,8 +23,8 @@ export const Cart = () => {
       name: "Cheeky Bottoms",
       price: 55,
       discountPrice: 55,
-      imageUrl: "../../images/cheeky-bottoms3.jpg",
-      variants: ["../../images/cheeky-bottoms3.jpg", "../../images/cheeky-bottoms4.jpg"],
+      imageUrl: "../../images/chk-btm3.jpg",
+      variants: ["../../images/chk-btm3.jpg", "../../images/chk-btm4.jpg"],
       stock: 4,
     },
     {
@@ -31,8 +32,8 @@ export const Cart = () => {
       name: "Cheeky Bottoms",
       price: 55,
       discountPrice: null,
-      imageUrl: "../../images/cheeky-bottoms5.jpg",
-      variants: ["../../images/cheeky-bottoms5.jpg", "../../images/cheeky-bottoms6.jpg"],
+      imageUrl: "../../images/chk-btm5.jpg",
+      variants: ["../../images/chk-btm5.jpg", "../../images/chk-btm6.jpg"],
       stock: 3,
     },
     {
@@ -40,8 +41,8 @@ export const Cart = () => {
       name: "Cheeky Bottoms",
       price: 55,
       discountPrice: null,
-      imageUrl: "../../images/cheeky-bottoms7.jpg",
-      variants: ["../../images/cheeky-bottoms7.jpg", "../../images/cheeky-bottoms8.jpg"],
+      imageUrl: "../../images/chk-btm7.jpg",
+      variants: ["../../images/chk-btm7.jpg", "../../images/chk-btm8.jpg"],
       stock: 9,
     },
     {
@@ -49,8 +50,8 @@ export const Cart = () => {
       name: "Cheeky Bottoms",
       price: 55,
       discountPrice: 55,
-      imageUrl: "../../images/cheeky-bottoms10.jpg",
-      variants: ["../../images/cheeky-bottoms9.jpg", "../../images/cheeky-bottoms10.jpg"],
+      imageUrl: "../../images/chk-btm10.jpg",
+      variants: ["../../images/chk-btm9.jpg", "../../images/chk-btm10.jpg"],
       stock: 7,
     },
   ];
@@ -86,71 +87,159 @@ export const Cart = () => {
     });
   };
 
+  const removeItemFromCart = (product) => {
+    setCart((prevCart) => prevCart.filter((item) => item.id !== product.id));
+  };
+
+  const handleShippingChange = (event) => {
+    const selectedValue = event.target.value;
+    setShippingFee(selectedValue === "1" ? 16 : 15);
+  };
+
+
   return (
     <Container className="cart-container">
       <Row>
         <h1>Cart</h1>
       </Row>
       <Row>
-        <Col>
+        <Col className="list-group-container">
           <h3>Cart Items</h3>
           {cart.length === 0 ? (
             <p>No items in cart</p>
           ) : (
-            <ListGroup>
+            <ListGroup className="shadow-sm">
               {cart.map((item) => (
-                <ListGroup.Item key={item.id} className="d-flex align-items-center">
+                <ListGroup.Item key={item.id} className="d-flex align-items-center justify-content-between p-4">
+                  
+                  {/* Product Image and Name */}
                   <div 
                     onClick={() => handleShowModal(item)} 
-                    className="d-flex align-items-center" 
+                    className="d-flex align-items-center flex-grow-1" 
                     style={{ cursor: "pointer" }}
                   >
                     <Image 
                       src={item.imageUrl} 
                       alt={item.name} 
-                      width={80} 
-                      height={80} 
-                      rounded 
+                      width={72} 
+                      height={108} 
                       className="me-3"
                     />
-                  <strong>{item.name}</strong>
+                    <strong>{item.name}</strong>
                   </div>
-                  <span className="ms-auto">
-                    <Button onClick={() => decreaseItemQuantity(item)} disabled={item.quantity <= 1}>-</Button>
-                    {item.quantity}
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={
-                        <Tooltip id={`tooltip-${item.id}`}>
-                          {item.quantity >= item.stock ? "Insufficient stock" : ""}
-                        </Tooltip>
-                      }
+
+                  {/* Quantity and Price Controls */}
+                  <span className="d-flex align-items-center">
+                    <Button 
+                      variant="outline-secondary" 
+                      onClick={() => decreaseItemQuantity(item)} 
+                      disabled={item.quantity <= 1}
                     >
-                      <Button
-                        onClick={() => addItemToCart(item)}
-                        disabled={item.quantity >= item.stock}
+                      -
+                    </Button>
+                    
+                    <span>{item.quantity}</span>
+
+                    {item.quantity >= item.stock ? (
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id={`tooltip-${item.id}`}>Insufficient stock</Tooltip>}
+                      >
+                        <span>
+                          <Button 
+                            variant="outline-secondary" 
+                            disabled 
+                            className="ms-2"
+                          >
+                            +
+                          </Button>
+                        </span>
+                      </OverlayTrigger>
+                    ) : (
+                      <Button 
+                        variant="outline-secondary" 
+                        onClick={() => addItemToCart(item)} 
+                        className="ms-2"
                       >
                         +
                       </Button>
-                    </OverlayTrigger>
-                      {item.discountPrice ? (
-                        <>
-                          <span style={{ textDecoration: "line-through", color: "gray" }}>
-                            ${item.price}
-                          </span>
-                          {" "}<strong>${item.discountPrice}</strong>
-                        </>
-                      ) : (
-                        <strong>${item.price}</strong>
-                      )}
+                    )}
                   </span>
+
+                  {/* Price Section */}
+                  <div className="text-end ms-3">
+                    {item.discountPrice ? (
+                      <>
+                        <span className="text-muted text-decoration-line-through">${item.price}</span>
+                        <strong className="ms-2">${item.discountPrice}</strong>
+                      </>
+                    ) : (
+                      <strong>${item.price}</strong>
+                    )}
+                  </div>
+
+                  {/* Wishlist and Remove Actions */}
+                  <div className="d-flex align-items-center">
+                    <div className="ms-3 d-flex align-items-center" style={{ cursor: "pointer" }}>
+                      <Image 
+                        src="../../icons/heart.png"
+                        alt="heart"
+                        width={16}
+                        height={16}
+                      />
+                      <p className="wishlist ms-2">Save to Wishlist</p>
+                    </div>
+
+                    <div className="d-flex align-items-center">
+                      <span className="me-3 ms-3">|</span>
+                    </div>
+
+                    <div className="d-flex align-items-center" style={{ cursor: "pointer" }} onClick={() => removeItemFromCart(item)}>
+                      <Image 
+                        src="../../icons/trash.png"
+                        alt="trash"
+                        width={16}
+                        height={16}
+                      />
+                      <span className="ms-1">Remove</span>
+                    </div>
+                  </div>
+
                 </ListGroup.Item>
               ))}
             </ListGroup>
           )}
         </Col>
-      </Row>
+        <Col className="order-container">
+          <Row className="shipping-fee-container">
+            <p style={{ fontSize: "18px",  }}>ESTIMATED SHIPPING FEE </p>
+            <p style={{ fontSize: "14px" }}>Shipping via:</p>
 
+            <div className="d-flex align-items-center mb-2">
+              <Form.Select onChange={handleShippingChange}>
+                <option value="1">DHL International Shipping</option>
+                <option value="2">FedEx</option>
+              </Form.Select>
+            </div>
+
+            <p style={{ fontSize: "14px"}}>Fee:</p>
+
+            <InputGroup className="mt-1">
+              <Form.Control
+                value={`$${shippingFee}`}
+                readOnly // Prevents user input
+              />
+            </InputGroup>
+            <p style={{fontSize: "14px" }}>Shipping fees may vary based on your address. The final cost will be confirmed at checkout if this shipping method is available in your location.</p>
+          </Row>
+
+          <Row className="order-fee-container">
+            <p style={{ fontSize: "18px"}}>ORDER SUMMARY</p>
+            <p style={{ fontSize: "16px"}}>Discount</p>
+          </Row>
+        </Col>
+      </Row>      
+      
       {/* Product Detail Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)} centered>
         {selectedProduct && (
@@ -166,10 +255,6 @@ export const Cart = () => {
                   </Col>
                 ))}
               </Row>
-              <p className="mt-3">Price: ${selectedProduct.price}</p>
-              <Button onClick={() => addItemToCart(selectedProduct)} variant="primary">
-                Add to Cart
-              </Button>
             </Modal.Body>
           </>
         )}
