@@ -6,6 +6,10 @@ export const Cart = () => {
   const [selectedProduct, setSelectedProduct] = useState(null); // Stores the selected product for modal
   const [showModal, setShowModal] = useState(false); // Controls modal visibility
   const [shippingFee, setShippingFee] = useState(16);
+  const [coupon, setCoupon] = useState('');
+  const [couponApplied, setCouponApplied] = useState(false);
+  const [termsChecked, setTermsChecked] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   // Sample products
   const products = [
@@ -65,7 +69,7 @@ export const Cart = () => {
   // Initialize cart with all products, each with quantity: 1
   const [cart, setCart] = useState(products.map((product) => ({ ...product, quantity: 1 })));
 
-  const addItemToCart = (product) => {
+  const addItemQuantity = (product) => {
     setCart((prevCart) => {
       const updatedCart = prevCart.map((item) =>
         item.id === product.id && item.quantity < product.stock
@@ -96,6 +100,34 @@ export const Cart = () => {
     setShippingFee(selectedValue === "1" ? 16 : 15);
   };
 
+  // Apply coupon
+  const applyCoupon = () => {
+    if (coupon === "BBSWIMPH2025") {
+      setCouponApplied(true);
+      setErrorMessage('');
+    } else {
+      setCouponApplied(false);
+      setErrorMessage('Sorry, but this coupon doesn\'t exist.');
+    }
+  };
+
+  // Calculate total cost
+  const calculateTotal = () => {
+    const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const discount = couponApplied ? 0.2 * subtotal : 0;
+    const discountedTotal = subtotal - discount;
+  
+    // Free shipping applies only if discountedTotal is $500 or more
+    const shipping = discountedTotal >= 500 ? 0 : 16;
+  
+    return { 
+      subtotal, 
+      discount, 
+      finalTotal: discountedTotal, 
+      shipping, 
+      total: discountedTotal + shipping 
+    };
+  };
 
   return (
     <Container className="cart-container">
@@ -158,7 +190,7 @@ export const Cart = () => {
                     ) : (
                       <Button 
                         variant="outline-secondary" 
-                        onClick={() => addItemToCart(item)} 
+                        onClick={() => addItemQuantity(item)} 
                         className="ms-2"
                       >
                         +
@@ -211,7 +243,7 @@ export const Cart = () => {
           )}
         </Col>
         <Col className="order-container">
-          <Row className="shipping-fee-container">
+          <Row className="shipping-fee-container ps-3 pe-3">
             <p style={{ fontSize: "18px",  }}>ESTIMATED SHIPPING FEE </p>
             <p style={{ fontSize: "14px" }}>Shipping via:</p>
 
@@ -227,15 +259,49 @@ export const Cart = () => {
             <InputGroup className="mt-1">
               <Form.Control
                 value={`$${shippingFee}`}
-                readOnly // Prevents user input
+                readOnly 
               />
             </InputGroup>
             <p style={{fontSize: "14px" }}>Shipping fees may vary based on your address. The final cost will be confirmed at checkout if this shipping method is available in your location.</p>
           </Row>
 
-          <Row className="order-fee-container">
-            <p style={{ fontSize: "18px"}}>ORDER SUMMARY</p>
-            <p style={{ fontSize: "16px"}}>Discount</p>
+          <Row className="order-fee-container ps-3 pe-3">
+            <div>
+              <p style={{ fontSize: "18px"}}>ORDER SUMMARY</p>
+              <p style={{ fontSize: "16px"}}>Discount</p>
+            </div>
+
+            <div>
+              <div className="d-flex justify-content-between">
+                <InputGroup className="mb-3 me-3">
+                  <Form.Control
+                    text="text"
+                    placeholder="Enter discount code or gift card"
+                    onChange={(e) => setCoupon(e.target.value)}
+                    value={coupon}
+                  />
+                </InputGroup>
+                <Button size="sm" onClick={applyCoupon}>Apply</Button>
+              </div>
+
+              <div className="d-flex justify-content-between">
+                <p style={{ fontSize: "16px",  }}>Subtotal </p>
+                <p style={{ fontSize: "16px",  }}>${calculateTotal().subtotal.toFixed(2)}</p>
+              </div>
+
+              <div className="d-flex justify-content-between">
+                <p style={{ fontSize: "16px" }}>Shipping Fee</p>
+                <p style={{ fontSize: "16px" }}>${calculateTotal().shipping}</p>
+              </div>
+
+              <div className="border-top my-3" style={{ borderWidth: "8px" }}></div>
+
+              <div className="d-flex justify-content-between">
+                <p style={{ fontSize: "24px" }}>ESTIMATED TOTAL</p>
+                <p style={{ fontSize: "24px" }}>${calculateTotal().total.toFixed(2)}</p>
+              </div>
+
+            </div>
           </Row>
         </Col>
       </Row>      
