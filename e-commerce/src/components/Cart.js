@@ -168,14 +168,14 @@ export const Cart = () => {
     const discountedTotal = subtotal - discount;
   
     // Free shipping applies only if discountedTotal is $500 or more
-    const shipping = discountedTotal >= 500 ? 0 : 16;
-    
+    const finalShippingFee = discountedTotal >= 500 ? 0 : shippingFee;
+
     return { 
       subtotal, 
       discount, 
       finalTotal: discountedTotal, 
-      shipping, 
-      total: discountedTotal + shipping 
+      shipping: finalShippingFee, 
+      total: discountedTotal + finalShippingFee
     };
   };
 
@@ -469,7 +469,6 @@ export const Cart = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-      
     </Container>
   );
 };
