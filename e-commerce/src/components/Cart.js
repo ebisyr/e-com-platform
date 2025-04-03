@@ -201,116 +201,133 @@ export const Cart = () => {
           ) : (
             <ListGroup className="shadow-sm">
               {cart.map((item) => (
-                <ListGroup.Item key={item.id} className="d-flex align-items-center justify-content-between p-4">
-                  <input
-                    type="checkbox"
-                    checked={selectedItems.includes(item.id)}
-                    onChange={() => handleSelectItem(item.id)}
-                    className="me-3"
-                  />
-                  {/* Product Image and Name */}
-                  <div 
-                    onClick={() => handleShowModal(item)} 
-                    className="d-flex align-items-center flex-grow-1" 
-                    style={{ cursor: "pointer" }}
-                  >
+                <ListGroup.Item key={item.id} className=" p-4">
+                <div className="d-flex align-items-row">
+
+                  <div className="d-flex">
+                    <input
+                      type="checkbox"
+                      checked={selectedItems.includes(item.id)}
+                      onChange={() => handleSelectItem(item.id)}
+                      className="me-3"
+                    />
+
+                    {/* Product Image and Name */}
                     <Image 
+                      style={{ cursor: "pointer" }}
                       src={item.imageUrl} 
                       alt={item.name} 
                       width={72} 
                       height={108} 
+                      onClick={() => handleShowModal(item)} 
                       className="me-3"
                     />
-                    <strong>{item.name}</strong>
                   </div>
 
-                  {/* Quantity and Price Controls */}
-                  <span className="d-flex align-items-center">
-                    <Button 
-                      variant="outline-secondary" 
-                      onClick={() => decreaseItemQuantity(item)} 
-                      disabled={item.quantity <= 1}
-                    >
-                      -
-                    </Button>
-                    
-                    <span>{item.quantity}</span>
-
-                    {item.quantity >= item.stock ? (
-                      <OverlayTrigger
-                        placement="top"
-                        overlay={<Tooltip id={`tooltip-${item.id}`}>Insufficient stock</Tooltip>}
-                      >
-                        <span>
-                          <Button 
-                            variant="outline-secondary" 
-                            disabled 
-                            className="ms-2"
-                          >
-                            +
-                          </Button>
-                        </span>
-                      </OverlayTrigger>
-                    ) : (
-                      <Button 
-                        variant="outline-secondary" 
-                        onClick={() => addItemQuantity(item)} 
-                        className="ms-2"
-                      >
-                        +
-                      </Button>
-                    )}
-                  </span>
-
-                  {/* Price Section */}
-                  <div className="text-end ms-3">
-                    {item.discountPrice ? (
-                      <>
-                        <span className="text-muted text-decoration-line-through">${item.price}</span>
-                        <strong className="ms-2">${item.discountPrice}</strong>
-                      </>
-                    ) : (
-                      <strong>${item.price}</strong>
-                    )}
-                  </div>
-
-                  {/* Wishlist and Remove Actions */}
-                  <div className="d-flex align-items-center">
-                    <div 
-                      className="ms-3 d-flex align-items-center" 
-                      style={{ cursor: "pointer" }} 
-                      onClick={() => toggleWishlist(item)}
-                    >
-                      <Image 
-                        src={wishlist.includes(item.id) ? "../../icons/redheart.png" : "../../icons/heart.png"}
-                        alt="heart"
-                        width={16}
-                        height={16}
-                      />
-                      <p className="wishlist ms-2">
-                        {wishlist.includes(item.id) ? "Added to Wishlist" : "Save to Wishlist"}
+                  <div>
+                    <div className="d-flex align-items-left">
+                      <p 
+                          onClick={() => handleShowModal(item)} 
+                          style={{ cursor: "pointer" }}
+                          className="mb-0"
+                        >
+                          {item.name}
                       </p>
                     </div>
 
-                    <div className="d-flex align-items-center">
-                      <span className="me-3 ms-3">|</span>
+                    {/* Quantity and Price - Spread Apart */}
+                    <div className="d-flex justify-content-between">
+                      <div className="d-flex align-items-center">
+                        <Image
+                          style={{ cursor: "pointer" }}
+                          src={'../../icons/minus.png'}
+                          alt={'minus'}
+                          width={24}
+                          height={24}
+                          onClick={() => decreaseItemQuantity(item)}
+                          disabled={item.quantity <= 1}
+                        />
+                        <span className="mx-2">{item.quantity}</span>
+
+                        {item.quantity >= item.stock ? (
+                          <OverlayTrigger
+                            placement="top"
+                            overlay={<Tooltip id={`tooltip-${item.id}`}>Insufficient stock</Tooltip>}
+                          >
+                            <span>
+                              <Image
+                                style={{ cursor: "pointer", opacity: '0.3' }}
+                                src={'../../icons/plus.png'}
+                                alt={'plus'}
+                                width={24}
+                                height={24}
+                              />
+                            </span>
+                          </OverlayTrigger>
+                        ) : (
+                          <Image
+                            style={{ cursor: "pointer" }}
+                            src={'../../icons/plus.png'}
+                            alt={'plus'}
+                            width={24}
+                            height={24}
+                            onClick={() => addItemQuantity(item)}
+                          />
+                        )}
+                      </div>
+                      
+                      {/* Price */}
+                      <div className="d-flex align-items-right">
+                        {item.discountPrice ? (
+                          <>
+                            <span className="text-muted text-decoration-line-through">${item.price}</span>
+                            <strong className="ms-2">${item.discountPrice}</strong>
+                          </>
+                        ) : (
+                          <strong>${item.price}</strong>
+                        )}
+                      </div>
                     </div>
 
-                    <div 
-                      className="d-flex align-items-center" 
-                      style={{ cursor: "pointer" }} 
-                      onClick={() => handleRemoveClick(item)}
-                    >
-                      <Image 
-                        src="../../icons/trash.png"
-                        alt="trash"
-                        width={16}
-                        height={16}
-                      />
-                      <span className="ms-1">Remove</span>
-                    </div>
+                    {/* Wishlist and Remove Actions */}
+                    <div className="d-flex align-items-center">
+                      <div 
+                        className="ms-3 d-flex" 
+                        style={{ cursor: "pointer" }} 
+                        onClick={() => toggleWishlist(item)}
+                      >
+                        <Image 
+                          src={wishlist.includes(item.id) ? "../../icons/redheart.png" : "../../icons/heart.png"}
+                          alt="heart"
+                          width={16}
+                          height={16}
+                        />
+                        <p className="wishlist ms-2">
+                          {wishlist.includes(item.id) ? "Added to Wishlist" : "Save to Wishlist"}
+                        </p>
+                      </div>
+
+                      <div className="d-flex">
+                        <span className="me-3 ms-3">|</span>
+                      </div>
+
+                      <div 
+                        className="d-flex" 
+                        style={{ cursor: "pointer" }} 
+                        onClick={() => handleRemoveClick(item)}
+                      >
+                        <Image 
+                          src="../../icons/trash.png"
+                          alt="trash"
+                          width={16}
+                          height={16}
+                        />
+                        <span className="ms-1">Remove</span>
+                      </div>
+                    </div>                    
                   </div>
 
+                </div>
                 </ListGroup.Item>
               ))}
             </ListGroup>
