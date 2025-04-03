@@ -201,10 +201,9 @@ export const Cart = () => {
           ) : (
             <ListGroup className="shadow-sm">
               {cart.map((item) => (
-                <ListGroup.Item key={item.id} className=" p-4">
+                <ListGroup.Item key={item.id} className="p-4">
                 <div className="d-flex align-items-row">
-
-                  <div className="d-flex">
+                  <div>
                     <input
                       type="checkbox"
                       checked={selectedItems.includes(item.id)}
@@ -237,7 +236,7 @@ export const Cart = () => {
 
                     {/* Quantity and Price - Spread Apart */}
                     <div className="d-flex justify-content-between">
-                      <div className="d-flex align-items-center">
+                      <div className="d-flex">
                         <Image
                           style={{ cursor: "pointer" }}
                           src={'../../icons/minus.png'}
@@ -288,11 +287,11 @@ export const Cart = () => {
                         )}
                       </div>
                     </div>
-
+                    
                     {/* Wishlist and Remove Actions */}
-                    <div className="d-flex align-items-center">
+                    <div className="d-flex align-items-right gap-3 mt-5">
                       <div 
-                        className="ms-3 d-flex" 
+                        className="d-flex align-items-center" 
                         style={{ cursor: "pointer" }} 
                         onClick={() => toggleWishlist(item)}
                       >
@@ -302,17 +301,17 @@ export const Cart = () => {
                           width={16}
                           height={16}
                         />
-                        <p className="wishlist ms-2">
+                        <p className="wishlist ms-2 mb-0">
                           {wishlist.includes(item.id) ? "Added to Wishlist" : "Save to Wishlist"}
                         </p>
                       </div>
 
-                      <div className="d-flex">
-                        <span className="me-3 ms-3">|</span>
-                      </div>
+                      {/* Separator */}
+                      <span className="border-start ps-3"></span>
 
+                      {/* Remove Section */}
                       <div 
-                        className="d-flex" 
+                        className="d-flex align-items-center" 
                         style={{ cursor: "pointer" }} 
                         onClick={() => handleRemoveClick(item)}
                       >
@@ -322,11 +321,11 @@ export const Cart = () => {
                           width={16}
                           height={16}
                         />
-                        <span className="ms-1">Remove</span>
+                        <span className="ms-2">Remove</span>
                       </div>
-                    </div>                    
-                  </div>
+                    </div>
 
+                  </div>
                 </div>
                 </ListGroup.Item>
               ))}
