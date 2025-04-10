@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/ecom-platform-cart/static/css/main.ada9df7d.css",
+    "main.js": "/ecom-platform-cart/static/js/main.186fbd3f.js",
+    "static/js/453.0297a6b4.chunk.js": "/ecom-platform-cart/static/js/453.0297a6b4.chunk.js",
+    "index.html": "/ecom-platform-cart/index.html",
+    "main.ada9df7d.css.map": "/ecom-platform-cart/static/css/main.ada9df7d.css.map",
+    "main.186fbd3f.js.map": "/ecom-platform-cart/static/js/main.186fbd3f.js.map",
+    "453.0297a6b4.chunk.js.map": "/ecom-platform-cart/static/js/453.0297a6b4.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.ada9df7d.css",
+    "static/js/main.186fbd3f.js"
+  ]
+}
